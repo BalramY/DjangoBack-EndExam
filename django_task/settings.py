@@ -144,8 +144,8 @@ EMAIL_PAGE_DOMAIN = 'http://localhost:8000/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'djangodjangomail@gmail.com'
-EMAIL_HOST_PASSWORD = 'django@123'  # os.environ['password_key'] suggested
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''  # os.environ['password_key'] suggested
 EMAIL_USE_TLS = True
 
 
