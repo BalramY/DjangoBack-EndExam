@@ -1,0 +1,148 @@
+{% load static %}
+{% load socialaccount %}
+{% providers_media_js %}
+<!DOCTYPE html>
+<html>
+<head>
+	  <title>Login</title>
+	  <meta charset="utf-8">
+	  <meta name="viewport" content="class= width=width-device, initial-scale=1">
+	  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	  <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	  <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+	   <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.js"></script>
+	   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.all.min.js"></script>
+</head>
+<body>
+	<div class="st-bg">
+		<div class="container">
+			<div class="first-div" style="height: 600px;">
+				<i class="fa fa-user-circle-o icon-con" aria-hidden="true"></i>
+				<h1 class="text-center Login">Sign in</h1>
+				<form id="form_submit" method="post">
+					<div class="wrap mt-5">
+						<input type="email" name="username" class="form-control input-field" id="username" placeholder="Email" required>
+					</div>
+					<div class="wrap1">
+					<input type="password" name="password" class="form-control input-field" placeholder="Password" required>
+					<p class="text-white mt-3 mb-1">Don't have account? <a href="{% url 'sign_up' %}"> sing up</a></p>
+					</div>
+					<div class="text-center login-div">
+					<button class="btn Login-btn py-3 ">Login</button>
+					</div>
+					<div class="text-center mt-2">
+						<p class=" text-white mb-1">Login with</p>
+						<a href="{% provider_login_url 'google' %}">
+							<img src="https://img.icons8.com/color/48/000000/google-logo.png"/ style="height:30px">
+						</a>
+						<a href="{% provider_login_url 'facebook' method='js_sdk' %} ">
+							<img src="https://img.icons8.com/fluency/48/000000/facebook-new.png"/ style="height:30px">
+						</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+<div class="modal fade" id="resend_email_link_model" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Email not verify</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Your email is not verify please verify you email first
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" id="resend_email_link" data-dismiss="modal" class="btn btn-primary">Resend email verification</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#form_submit").on('submit', function(e){
+			var formData = new FormData(this)
+			console.log(formData)
+			e.preventDefault()
+		if ($(this).validate() == false){
+			return none
+		}
+		console.log($(this).serialize())
+		$.ajax({
+		url: '{% url "login"  %}',
+		type: "POST",
+		headers: {
+			'X-CSRFToken': '{{ csrf_token }}',
+		},
+		data: $(this).serialize(),
+
+		success: function (data) {
+			if (data.message == "WRONG")
+			{
+				window.swal.fire("Your username and passowrd is wrong.", "", "error")
+			}
+			if(data.message == "SUCCESS")
+			{
+				window.location.href = "{% url 'dashboard' %}"
+			}
+			console.log(data)
+			if(data.message == "NOT_ACTIVE")
+			{
+				console.log("not asyn")
+				$('#resend_email_link_model').modal("show")
+			}
+		},
+		error: function (data) {
+			console.log("error", data)
+		},
+		cache: false,
+		async: true,
+		processData: false,
+	});
+		})
+
+		$("#resend_email_link").on("click", function(){
+
+			var data = {"username": $("#username").val()}
+			console.log(JSON.stringify(data))
+			$.ajax({
+				url: '{% url "resend_email_verification"  %}',
+				type: "POST",
+				headers: {
+					'X-CSRFToken': '{{ csrf_token }}',
+				},
+				data: JSON.stringify(data),
+				contentType: 'application/json',
+
+				success: function (data) {
+					if(data.message == "SUCCESS")
+					{
+						window.swal.fire("Email has been send to your email address.", "", "success")
+					}
+				},
+				error: function (data) {
+					window.swal.fire("Something went wrong.", "", "error")
+				},
+				cache: false,
+				async: true,
+				processData: false,
+			});
+
+		})
+
+	})
+
+
+</script>
+</html>
